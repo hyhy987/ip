@@ -15,7 +15,7 @@ public class LilBird {
         printBox("Hello! I'm LilBird\nWhat can I do for you?");
 
         //Store and track the tasks
-        String[] tasks = new String[100];
+        Task[] tasks = new Task[100];
         int count = 0;
 
         Scanner sc = new Scanner(System.in);
@@ -29,18 +29,28 @@ public class LilBird {
                 break;
             } else if (input.equals("list")) {
                 if (count == 0) {
-                    printBox("");
+                    printBox("No tasks yet.");
                 } else {
                     StringBuilder sb = new StringBuilder();
                     for (int i = 0; i < count; i++) {
-                        sb.append(i + 1).append(". ").append(tasks[i]);
+                        sb.append("\n").append(i + 1).append(". ").append(tasks[i]);
                         if (i < count - 1) sb.append("\n");
                     }
                     printBox(sb.toString());
                 }
+            } else if (input.startsWith("mark ")){
+                int idx = Integer.parseInt(input.split(" ")[1]) - 1;
+                tasks[idx].markAsDone();
+                printBox("Nice! I've marked this task as done:\n " + tasks[idx]);
+            } else if (input.startsWith("unmark ")){
+                String[] parts = input.split(" ");
+                int idx = Integer.parseInt(parts[1]) - 1;
+                tasks[idx].markAsNotDone();
+                printBox("OK, I've marked this task as not done yet:\n " + tasks[idx]);
             } else if (!input.isEmpty()) {
                     if (count < tasks.length) {
-                        tasks[count++] = input;
+                        tasks[count] = new Task(input);
+                        count++;
                         printBox("added: " + input);
                     } else {
                         printBox("Sorry, task list is full (100).");
