@@ -15,7 +15,7 @@ public class LilBird {
         printBox("Hello! I'm LilBird\nWhat can I do for you?");
 
         //Store and track the tasks
-        private String[] tasks = new String[100];
+        String[] tasks = new String[100];
         int count = 0;
 
         Scanner sc = new Scanner(System.in);
@@ -33,15 +33,22 @@ public class LilBird {
                 } else {
                     StringBuilder sb = new StringBuilder();
                     for (int i = 0; i < count; i++) {
-                        sb.append(i+1).append(". ").append(tasks[i]);
+                        sb.append(i + 1).append(". ").append(tasks[i]);
                         if (i < count - 1) sb.append("\n");
                     }
                     printBox(sb.toString());
                 }
+            } else if (!input.isEmpty()) {
+                    if (count < tasks.length) {
+                        tasks[count++] = input;
+                        printBox("added: " + input);
+                    } else {
+                        printBox("Sorry, task list is full (100).");
+                    }
+                } else {
+                    printBox("*soft chirp* say something?");
+                }
             }
-            //Echo whatever user types
-            printBox(input);
-        }
         sc.close();
     }
 }
