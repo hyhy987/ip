@@ -78,13 +78,6 @@ public class LilBird {
                 + "\nNow you have " + tasks.size() + " tasks in the list.");
     }
 
-    private static void handleAdd(String input, ArrayList<Task> tasks) throws LilBirdException {
-        if (input.isEmpty()) throw new LilBirdException("*soft chirp* say something?");
-        Task t = new Task(input);
-        tasks.add(t);
-        printBox("added: " + input);
-    }
-
     // === Utility ===
     private static int parseIndex(String input, int count) throws LilBirdException {
         try {
@@ -115,17 +108,17 @@ public class LilBird {
                 } else if (input.startsWith("mark ")) {
                     handleMark(input, tasks);
                 } else if (input.startsWith("unmark ")) {
-                    handleUnmark(input, tasks);
+                    handleUnmark(input, tasks );
                 } else if (input.startsWith("todo")) {
                     handleTodo(input, tasks);
                 } else if (input.startsWith("deadline")) {
                     handleDeadline(input, tasks);
                 } else if (input.startsWith("event")) {
                     handleEvent(input, tasks);
-                } else if (!input.isEmpty()) {
-                    handleAdd(input, tasks);
                 } else {
-                    throw new LilBirdException("*soft chirp* say something?");
+                    throw new LilBirdException("*soft chirp* \"I don't recognise that command. Try: list, todo, " +
+                            "deadline, event, mark, unmark, delete, bye.\"");
+
                 }
 
             } catch (LilBirdException e) {
