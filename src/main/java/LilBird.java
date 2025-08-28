@@ -112,32 +112,12 @@ public class LilBird {
 
         while (true) {
             if (!ui.hasNextLine()) break;
-            String input = ui.readCommand().trim();
+            String input = ui.readCommand();
 
             try {
-                if (input.equals("bye")) {
-                    ui.showBox("Bye. Hope to see you again soon!");
-                    break;
-                } else if (input.equals("list")) {
-                    handleList(taskList);
-                } else if (input.startsWith("mark ")) {
-                    handleMark(input, taskList, storage);
-                } else if (input.startsWith("unmark ")) {
-                    handleUnmark(input, taskList, storage);
-                } else if (input.startsWith("todo")) {
-                    handleTodo(input, taskList, storage);
-                } else if (input.startsWith("deadline")) {
-                    handleDeadline(input, taskList, storage);
-                } else if (input.startsWith("event")) {
-                    handleEvent(input, taskList, storage);
-                } else if (input.startsWith("delete")) {
-                    handleDelete(input, taskList, storage);
-                }
-                else {
-                    throw new LilBirdException("*soft chirp* \"I don't recognise that command. Try: list, todo, " +
-                            "deadline, event, mark, unmark, delete, bye.\"");
-                }
-
+                Command c = Parser.parse(input);
+                c.execute(taskList, ui, storage);
+                if (c.isExit()) break;
             } catch (LilBirdException e) {
                 ui.showBox("OOPS!!! " + e.getMessage());
             }
