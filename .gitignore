@@ -20,7 +20,7 @@ text-ui-test/EXPECTED-UNIX.TXT
 /bin/
 
 # Sometimes you compiled into src/out by hand
-src/out/
+src/main/out/
 
 # --- App/runtime data
 /data/
