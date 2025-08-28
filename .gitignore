@@ -18,6 +18,7 @@ text-ui-test/EXPECTED-UNIX.TXT
 
 # --- Build / tooling
 /bin/
+*.class
 
 # Sometimes you compiled into src/out by hand
 src/main/out/
