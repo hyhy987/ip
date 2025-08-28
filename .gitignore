@@ -32,11 +32,4 @@ ip/out/
 # --- Text UI test outputs (keep expected, ignore actuals)
 text-ui-test/**/actual*
 text-ui-test/**/ACTUAL*/bin/
-/out/
-/src/out/
-*.class
-/build/
-/.gradle/
-/target/
-/.idea/
-/*.iml
+
