@@ -23,10 +23,20 @@ text-ui-test/EXPECTED-UNIX.TXT
 # Sometimes you compiled into src/out by hand
 src/main/out/
 ip/out/
+/src/out/
+
 
 # --- App/runtime data
 /data/
 
 # --- Text UI test outputs (keep expected, ignore actuals)
 text-ui-test/**/actual*
-text-ui-test/**/ACTUAL*
+text-ui-test/**/ACTUAL*/bin/
+/out/
+/src/out/
+*.class
+/build/
+/.gradle/
+/target/
+/.idea/
+/*.iml
