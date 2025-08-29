@@ -144,5 +144,13 @@ public class Task {
         return "[" + type.getSymbol() + "][" + getStatusIcon() + "]" + description;
     }
 
+    /**
+     * Returns the task description
+     *
+     * @return String task description
+     */
+    public String getDescription() {
+        return this.description;
+    }
 
 }
