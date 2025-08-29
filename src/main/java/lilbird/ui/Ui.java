@@ -29,9 +29,11 @@ public class Ui {
     public void showWelcome() {
         showBox("Hello! I'm LilBird\nWhat can I do for you?");
     }
+
     public void showGoodbye() {
         showBox("Bye. Hope to see you again soon!");
     }
+
     public void showError(String msg) {
         showBox("☹ OOPS!!! " + msg);
     }
