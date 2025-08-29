@@ -3,8 +3,18 @@ package lilbird.parser;
 import lilbird.command.*;
 import lilbird.exception.LilBirdException;
 
+/**
+ * Parses raw user input into executable commands.
+ */
 public class Parser {
 
+    /**
+     * Parses the full command string into a Command object.
+     *
+     * @param fullCommand Raw input string from the user.
+     * @return Command representing the parsed action.
+     * @throws LilBirdException If the command is invalid.
+     */
     public static Command parse(String fullCommand) throws LilBirdException {
         if (fullCommand == null) throw new LilBirdException("Empty command.");
         String trimmed = fullCommand.trim();
@@ -52,17 +62,42 @@ public class Parser {
         }
     }
 
+    /**
+     * Extracts the command word (the first token) from a full command string.
+     * <p>
+     * For example, given {@code "todo read book"}, returns {@code "todo"}.
+     *
+     * @param full Full user input string.
+     * @return Command word; the entire string if no space is present.
+     */
     public static String commandWord(String full) {
         int sp = full.indexOf(' ');
         return sp == -1 ? full : full.substring(0, sp);
     }
 
+    /**
+     * Extracts the argument portion from a full command string.
+     * <p>
+     * For example, given {@code "todo read book"}, returns {@code "read book"}.
+     *
+     * @param full Full user input string.
+     * @return Arguments after the first space, trimmed; empty string if none.
+     */
     public static String arguments(String full) {
         int sp = full.indexOf(' ');
         return sp == -1 ? "" : full.substring(sp + 1).trim();
     }
 
-    /** Parses a 1-based index with bounds check against count; returns the 1-based value if valid. */
+    /**
+     * Parses a 1-based index string provided by the user.
+     * <p>
+     * Ensures the index is within the range {@code 1..count}.
+     *
+     * @param arg   String representing the 1-based index.
+     * @param count Total number of available items.
+     * @return Parsed index as an integer (1-based).
+     * @throws LilBirdException If the input is not numeric, empty, or out of range.
+     */
     public static int parseIndex1Based(String arg, int count) throws LilBirdException {
         try {
             String trimmed = arg.trim();

@@ -5,8 +5,20 @@ import lilbird.ui.Ui;
 import lilbird.storage.Storage;
 import lilbird.exception.LilBirdException;
 
+/**
+ * Represents a command that lists all tasks in the task list.
+ */
 public class ListCommand extends Command {
-    
+
+    /**
+     * Executes the list command by displaying all tasks in the task list.
+     * <p>
+     * If the list is empty, shows a message stating there are no tasks.
+     *
+     * @param tasks   Task list to display.
+     * @param ui      User interface for showing output.
+     * @param storage Storage (unused).
+     */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) {
         if (tasks.isEmpty()) {
