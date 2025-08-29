@@ -33,3 +33,4 @@ ip/out/
 text-ui-test/**/actual*
 text-ui-test/**/ACTUAL*/bin/
 
+/text-ui-test/

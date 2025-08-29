@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import lilbird.exception.LilBirdException;
 
+/**
+ * Represents a generic task that can be marked as done or not done.
+ */
 public class Task {
     protected String description;
     protected boolean isDone;
@@ -16,7 +19,11 @@ public class Task {
         this.type = type;
     }
 
-    /** Base serializer: T|D|E, done flag, description. Subclasses append extra fields. */
+    /**
+     * Converts this task into a serialized form for storage.
+     *
+     * @return Serialized string representation.
+     */
     public String serialize() {
         return String.join(" | ",
                 type.getSymbol(),
@@ -25,6 +32,13 @@ public class Task {
         );
     }
 
+    /**
+     * Deserializes a task from a line in the save file.
+     *
+     * @param line Line containing serialized task.
+     * @return Task represented by the line.
+     * @throws LilBirdException If the line is corrupted or invalid.
+     */
     public static Task deserialize(String line) throws LilBirdException {
         try {
             String[] raw = line.split("\\| ", -1);
@@ -72,27 +86,59 @@ public class Task {
         }
     }
 
+    /**
+     * Returns a status icon representing whether this task is done.
+     *
+     * @return {@code "X"} if the task is marked done, otherwise a space.
+     */
     public String getStatusIcon() {
         return (isDone ? "X" : " "); //mark done task with X
     }
 
-    //Marks task as done
+    /**
+     * Marks this task as done.
+     */
     public void markAsDone() {
         this.isDone = true;
     }
 
+    /**
+     * Marks this task as not done.
+     */
     public void markAsNotDone() {
         this.isDone = false;
     }
 
+    /**
+     * Escapes a string so it can be safely serialized.
+     * <p>
+     * The pipe character {@code |} is replaced with {@code \|}.
+     * Null values are converted to an empty string.
+     *
+     * @param s String to escape, may be {@code null}.
+     * @return Escaped string safe for storage.
+     */
     protected static String escape(String s) {
         return Objects.toString(s, "").replace("|", "\\|");
     }
 
+    /**
+     * Reverses {@link #escape(String)} by unescaping pipe characters.
+     * <p>
+     * Each occurrence of {@code \|} is converted back to {@code |}.
+     *
+     * @param s Escaped string.
+     * @return Original string with pipe characters restored.
+     */
     protected static String unescape(String s) {
         return s.replace("\\|", "|");
     }
 
+    /**
+     * Returns a human-readable string representation of the task.
+     *
+     * @return String representation.
+     */
     @Override
     public String toString() {
         return "[" + type.getSymbol() + "][" + getStatusIcon() + "]" + description;

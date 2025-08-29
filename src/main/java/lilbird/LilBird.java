@@ -12,9 +12,16 @@ import lilbird.task.Event;
 import lilbird.exception.LilBirdException;
 import java.util.ArrayList;
 
+/**
+ * Entry point of the LilBird application.
+ * Wires together the UI, storage, and task list, then runs the command loop.
+ */
 public class LilBird {
     private final Ui ui;
 
+    /**
+     * Creates a new instance of the LilBird application.
+     */
     public LilBird() {
         this.ui = new Ui();
     }
@@ -108,6 +115,15 @@ public class LilBird {
         }
     }
 
+    /**
+     * Executes the main program loop:
+     * <ol>
+     *   <li>Loads tasks from storage.</li>
+     *   <li>Reads commands via {@link lilbird.ui.Ui}.</li>
+     *   <li>Parses them via {@link lilbird.parser.Parser}.</li>
+     *   <li>Executes a {@link lilbird.command.Command}.</li>
+     * </ol>
+     */
     public void run() {
         ui.showBox("Hello! I'm LilBird\nWhat can I do for you?");
 
@@ -137,7 +153,11 @@ public class LilBird {
         ui.close();
     }
 
-
+    /**
+     * Application entry point.
+     *
+     * @param args Command line arguments (unused).
+     */
     public static void main(String[] args) {
         new LilBird().run();
     }

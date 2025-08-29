@@ -28,7 +28,7 @@ test {
 }
 
 application {
-    mainClass.set("seedu.duke.Duke")
+    mainClass.set('lilbird.LilBird')
 }
 
 shadowJar {
@@ -38,4 +38,14 @@ shadowJar {
 
 run{
     standardInput = System.in
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': application.mainClass
+        )
+    }
+    archiveBaseName = 'LilBird'   // base filename
+    archiveVersion = ''
 }
