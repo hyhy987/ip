@@ -1,14 +1,11 @@
 package lilbird;
 
+import lilbird.command.ExitCommand;
 import lilbird.ui.Ui;
 import lilbird.storage.Storage;
 import lilbird.model.TaskList;
 import lilbird.parser.Parser;
 import lilbird.command.Command;
-import lilbird.task.Task;
-import lilbird.task.Todo;
-import lilbird.task.Deadline;
-import lilbird.task.Event;
 import lilbird.exception.LilBirdException;
 import java.util.ArrayList;
 
@@ -17,103 +14,22 @@ import java.util.ArrayList;
  * Wires together the UI, storage, and task list, then runs the command loop.
  */
 public class LilBird {
-    private final Ui ui;
-
+    private final Storage storage;
+    private final TaskList tasks;
     /**
      * Creates a new instance of the LilBird application.
      */
     public LilBird() {
-        this.ui = new Ui();
-    }
-
-    //Command Handlers
-    private void handleList(TaskList taskList) {
-        if (taskList.isEmpty()) {
-            ui.showBox("No taskList yet.");
-        } else {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < taskList.size(); i++) {
-                sb.append(i+1).append(". ").append(taskList.get(i));
-                if (i < taskList.size() - 1) sb.append("\n");
-            }
-            ui.showBox(sb.toString());
-        }
-    }
-
-    private void handleMark(String input, TaskList taskList, Storage storage) throws LilBirdException {
-        int idx = parseIndex(input, taskList.size());
-        taskList.get(idx).markAsDone();
-        storage.save(taskList.copy());
-        ui.showBox("Nice! I've marked this task as done:\n " + taskList.get(idx));
-    }
-
-    private void handleUnmark(String input, TaskList taskList, Storage storage) throws LilBirdException {
-        int idx = parseIndex(input, taskList.size());
-        taskList.get(idx).markAsNotDone();
-        storage.save(taskList.copy());
-        ui.showBox("OK, I've marked this task as not done yet:\n " + taskList.get(idx));
-    }
-
-    private void handleTodo(String input, TaskList taskList, Storage storage) throws LilBirdException {
-        String desc = input.length() > 4 ? input.substring(5).trim() : "";
-        if (desc.isEmpty()) throw new LilBirdException("The description of a todo cannot be empty.");
-        Task t = new Todo(desc);
-        taskList.add(t);
-        storage.save(taskList.copy());
-        ui.showBox("Got it. I've added this task:\n  " + t
-                + "\nNow you have " + taskList.size() + " taskList in the list.");
-    }
-
-    private void handleDeadline(String input, TaskList taskList, Storage storage) throws LilBirdException {
-        String rest = input.length() > 8 ? input.substring(9).trim() : "";
-        int byIdx = rest.indexOf("/by");
-        if (byIdx == -1) throw new LilBirdException("Missing '/by'. Usage: deadline <desc> /by <time>");
-        String desc = rest.substring(0, byIdx).trim();
-        String by = rest.substring(byIdx + 3).trim();
-        if (desc.isEmpty() || by.isEmpty()) throw new LilBirdException("Deadline description and time cannot be empty.");
-        Task t = Deadline.fromUserInput(desc, by);
-        taskList.add(t);
-        storage.save(taskList.copy());
-        ui.showBox("Got it. I've added this task:\n  " + t
-                + "\nNow you have " + taskList.size() + " taskList in the list.");
-    }
-
-    private void handleEvent(String input, TaskList taskList, Storage storage) throws LilBirdException {
-        String rest = input.length() > 5 ? input.substring(6).trim() : "";
-        int fromIdx = rest.indexOf("/from");
-        int toIdx = rest.indexOf("/to");
-        if (fromIdx == -1 || toIdx == -1 || toIdx < fromIdx)
-            throw new LilBirdException("Missing '/from' or '/to'. Usage: event <desc> /from <start> /to <end>");
-        String desc = rest.substring(0, fromIdx).trim();
-        String from = rest.substring(fromIdx + 5, toIdx).trim();
-        String to = rest.substring(toIdx + 3).trim();
-        if (desc.isEmpty() || from.isEmpty() || to.isEmpty())
-            throw new LilBirdException("Event description, start, and end cannot be empty.");
-        Task t = Event.fromUserInput(desc, from, to);
-        taskList.add(t);
-        storage.save(taskList.copy());
-        ui.showBox("Got it. I've added this task:\n  " + t
-                + "\nNow you have " + taskList.size() + " taskList in the list.");
-    }
-
-    private void handleDelete(String input, TaskList taskList, Storage storage) throws LilBirdException {
-        int idx = parseIndex(input, taskList.size());
-        Task removed = taskList.removeAt(idx);
-        storage.save(taskList.copy());
-        ui.showBox("Noted. I've removed this task:\n  " + removed
-                + "\nNow you have " + taskList.size() + " taskList in the list.");
-    }
-
-    // === Utility ===
-    private static int parseIndex(String input, int count) throws LilBirdException {
+        this.storage = new Storage("data/lilbird.txt");
+        TaskList loaded;
         try {
-            int idx = Integer.parseInt(input.split(" ")[1]) - 1;
-            if (idx < 0 || idx >= count) throw new LilBirdException("That task number doesn’t exist.");
-            return idx;
-        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-            throw new LilBirdException("Please provide a valid task number.");
+            loaded = new TaskList(new ArrayList<>((storage.load())));
+        } catch (LilBirdException e) {
+            loaded = new TaskList();
         }
+        this.tasks = loaded;
     }
+
 
     /**
      * Executes the main program loop:
@@ -124,33 +40,64 @@ public class LilBird {
      *   <li>Executes a {@link lilbird.command.Command}.</li>
      * </ol>
      */
-    public void run() {
-        ui.showBox("Hello! I'm LilBird\nWhat can I do for you?");
+//    public void run() {
+//        ui.showBox("Hello! I'm LilBird\nWhat can I do for you?");
+//
+//        Storage storage = new Storage("data/lilbird.txt");
+//        TaskList taskList;
+//
+//        try {
+//            taskList = new TaskList(new ArrayList<>(storage.load()));
+//        } catch (LilBirdException e) {
+//            taskList = new TaskList();
+//            ui.showBox("OOPS!!! " + e.getMessage() + "\nStarting with an empty list.");
+//        }
+//
+//
+//        while (true) {
+//            if (!ui.hasNextLine()) break;
+//            String input = ui.readCommand();
+//
+//            try {
+//                Command c = Parser.parse(input);
+//                c.execute(taskList, ui, storage);
+//                if (c.isExit()) break;
+//            } catch (LilBirdException e) {
+//                ui.showBox("OOPS!!! " + e.getMessage());
+//            }
+//        }
+//        ui.close();
+//    }
 
-        Storage storage = new Storage("data/lilbird.txt");
-        TaskList taskList;
+    public String getResponse(String input) {
+        BufferingUi ui = new BufferingUi();
+        String trimmed = input == null ? "" : input.trim();
 
         try {
-            taskList = new TaskList(new ArrayList<>(storage.load()));
-        } catch (LilBirdException e) {
-            taskList = new TaskList();
-            ui.showBox("OOPS!!! " + e.getMessage() + "\nStarting with an empty list.");
-        }
-
-
-        while (true) {
-            if (!ui.hasNextLine()) break;
-            String input = ui.readCommand();
-
-            try {
-                Command c = Parser.parse(input);
-                c.execute(taskList, ui, storage);
-                if (c.isExit()) break;
-            } catch (LilBirdException e) {
-                ui.showBox("OOPS!!! " + e.getMessage());
+            if (trimmed.equalsIgnoreCase("bye")) {
+                new ExitCommand().execute(tasks, ui, storage);
+            } else {
+                Command c = Parser.parse(trimmed);
+                c.execute(tasks, ui,storage);
             }
+        } catch (LilBirdException e) {
+            ui.showBox("OOPS!!! " + e.getMessage());
         }
-        ui.close();
+        return ui.getLast();
+    }
+
+    private static class BufferingUi extends Ui {
+        private String last = "";
+
+        @Override
+        public void showBox(String message) {
+            // don't print; just capture for the GUI to read
+            this.last = message == null ? "" : message;
+        }
+
+        String getLast() {
+            return last;
+        }
     }
 
     /**
@@ -158,7 +105,7 @@ public class LilBird {
      *
      * @param args Command line arguments (unused).
      */
-    public static void main(String[] args) {
-        new LilBird().run();
-    }
+//    public static void main(String[] args) {
+//        new LilBird().run();
+//    }
 }
