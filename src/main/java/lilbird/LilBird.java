@@ -16,6 +16,7 @@ import java.util.ArrayList;
 public class LilBird {
     private final Storage storage;
     private final TaskList tasks;
+
     /**
      * Creates a new instance of the LilBird application.
      */
@@ -30,45 +31,6 @@ public class LilBird {
         this.tasks = loaded;
     }
 
-
-    /**
-     * Executes the main program loop:
-     * <ol>
-     *   <li>Loads tasks from storage.</li>
-     *   <li>Reads commands via {@link lilbird.ui.Ui}.</li>
-     *   <li>Parses them via {@link lilbird.parser.Parser}.</li>
-     *   <li>Executes a {@link lilbird.command.Command}.</li>
-     * </ol>
-     */
-//    public void run() {
-//        ui.showBox("Hello! I'm LilBird\nWhat can I do for you?");
-//
-//        Storage storage = new Storage("data/lilbird.txt");
-//        TaskList taskList;
-//
-//        try {
-//            taskList = new TaskList(new ArrayList<>(storage.load()));
-//        } catch (LilBirdException e) {
-//            taskList = new TaskList();
-//            ui.showBox("OOPS!!! " + e.getMessage() + "\nStarting with an empty list.");
-//        }
-//
-//
-//        while (true) {
-//            if (!ui.hasNextLine()) break;
-//            String input = ui.readCommand();
-//
-//            try {
-//                Command c = Parser.parse(input);
-//                c.execute(taskList, ui, storage);
-//                if (c.isExit()) break;
-//            } catch (LilBirdException e) {
-//                ui.showBox("OOPS!!! " + e.getMessage());
-//            }
-//        }
-//        ui.close();
-//    }
-
     public String getResponse(String input) {
         BufferingUi ui = new BufferingUi();
         String trimmed = input == null ? "" : input.trim();
@@ -78,7 +40,7 @@ public class LilBird {
                 new ExitCommand().execute(tasks, ui, storage);
             } else {
                 Command c = Parser.parse(trimmed);
-                c.execute(tasks, ui,storage);
+                c.execute(tasks, ui, storage);
             }
         } catch (LilBirdException e) {
             ui.showBox("OOPS!!! " + e.getMessage());
@@ -100,12 +62,4 @@ public class LilBird {
         }
     }
 
-    /**
-     * Application entry point.
-     *
-     * @param args Command line arguments (unused).
-     */
-//    public static void main(String[] args) {
-//        new LilBird().run();
-//    }
 }
