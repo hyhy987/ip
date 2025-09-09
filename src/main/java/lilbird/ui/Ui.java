@@ -25,44 +25,4 @@ public class Ui {
         }
         showLine();
     }
-
-    public void showWelcome() {
-        showBox("Hello! I'm LilBird\nWhat can I do for you?");
-    }
-
-    public void showGoodbye() {
-        showBox("Bye. Hope to see you again soon!");
-    }
-
-    public void showError(String msg) {
-        showBox("☹ OOPS!!! " + msg);
-    }
-
-    /**
-     * Reads the next command entered by the user.
-     *
-     * @return Raw command string entered by the user.
-     */
-    public String readCommand() {
-        return sc.nextLine();
-    }
-
-    /**
-     * Returns whether there is another line of input.
-     *
-     * @return True if another line of input exists.
-     */
-    public boolean hasNextLine() {
-        return sc.hasNextLine();
-    }
-
-    /**
-     * Closes the input scanner and releases system resources.
-     */
-    public void close() {
-        sc.close();
-    }
-
-
-
 }
