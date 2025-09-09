@@ -16,9 +16,13 @@ public class Parser {
      * @throws LilBirdException If the command is invalid.
      */
     public static Command parse(String fullCommand) throws LilBirdException {
-        if (fullCommand == null) throw new LilBirdException("Empty command.");
+        if (fullCommand == null) {
+            throw new LilBirdException("Empty command.");
+        }
         String trimmed = fullCommand.trim();
-        if (trimmed.isEmpty()) throw new LilBirdException("Empty command.");
+        if (trimmed.isEmpty()) {
+            throw new LilBirdException("Empty command.");
+        }
 
         String cmd = commandWord(trimmed);
         String args = arguments(trimmed);
@@ -101,6 +105,7 @@ public class Parser {
      * @throws LilBirdException If the input is not numeric, empty, or out of range.
      */
     public static int parseIndex1Based(String arg, int count) throws LilBirdException {
+        assert count >= 0 : "task count cannot be negative";
         try {
             String trimmed = arg.trim();
             if (trimmed.isEmpty()) throw new NumberFormatException();
