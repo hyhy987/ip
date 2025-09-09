@@ -1,70 +1,71 @@
 package lilbird.task;
 
 import lilbird.exception.LilBirdException;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 /**
- * Represents a task that spans a period of time.
- * <p>
- * An event has a start date/time and an end date/time, both given
- * in the format {@code yyyy-MM-dd HHmm}.
+ * Represents a time-bounded event with a start and end {@link LocalDateTime}.
  */
 public class Event extends Task {
-    protected LocalDateTime from;
-    protected LocalDateTime to;
 
+    private final LocalDateTime from;
+    private final LocalDateTime to;
+
+    // Input format (what the user types)
+    private static final DateTimeFormatter IN_DT = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+
+    // Output format (what we display back)
     private static final DateTimeFormatter PRINT_DT = DateTimeFormatter.ofPattern("MMM d yyyy, h:mm a");
 
+    private static final String ERR_FORMAT =
+            "Use yyyy-MM-dd HHmm for events, e.g., 2025-09-07 1400";
+
     /**
-     * Creates an Event task with the given description and time range.
+     * Creates an event occurring between two date-times (inclusive start, exclusive end).
      *
-     * @param description Description of the event.
-     * @param from Start date/time of the event.
-     * @param to End date/time of the event.
+     * @param description task description
+     * @param from        start date-time (non-null)
+     * @param to          end date-time (non-null, not before {@code from})
      */
     public Event(String description, LocalDateTime from, LocalDateTime to) {
-        super(description, TaskType.EVENT);
-        this.from = Objects.requireNonNull(from);
-        this.to = Objects.requireNonNull(to);
+        super(Objects.requireNonNull(description, "description"), TaskType.EVENT);
+        this.from = Objects.requireNonNull(from, "from");
+        this.to = Objects.requireNonNull(to, "to");
+        assert !this.to.isBefore(this.from) : "Event end must not be before start";
     }
 
     /**
-     * Creates an Event from raw user input.
-     * <p>
-     * Both {@code fromRaw} and {@code toRaw} must be in the format {@code yyyy-MM-dd HHmm}.
+     * Parses user input and constructs an {@code Event}.
+     * Expected format for both endpoints: {@code yyyy-MM-dd HHmm}.
      *
-     * @param description Description of the event.
-     * @param fromRaw Raw string representing the start date/time.
-     * @param toRaw Raw string representing the end date/time.
-     * @return A new Event task.
-     * @throws LilBirdException If the inputs are invalid or cannot be parsed.
+     * @param description task description
+     * @param fromRaw     raw string after {@code /from}
+     * @param toRaw       raw string after {@code /to}
+     * @return constructed event
+     * @throws LilBirdException if inputs cannot be parsed or end is before start
      */
     public static Event fromUserInput(String description, String fromRaw, String toRaw) throws LilBirdException {
+        Objects.requireNonNull(description, "description");
+        Objects.requireNonNull(fromRaw, "fromRaw");
+        Objects.requireNonNull(toRaw, "toRaw");
+
         try {
-            if (!fromRaw.matches("\\d{4}-\\d{2}-\\d{2} \\d{4}") ||
-                !toRaw.matches("\\d{4}-\\d{2}-\\d{2} \\d{4}")) {
-                throw new LilBirdException("Use yyyy-MM-dd HHmm for events, e.g., 2025-09-07 1400");
+            LocalDateTime f = LocalDateTime.parse(fromRaw.trim(), IN_DT);
+            LocalDateTime t = LocalDateTime.parse(toRaw.trim(), IN_DT);
+            if (t.isBefore(f)) {
+                throw new LilBirdException("End cannot be before start.");
             }
-            String[] pf = fromRaw.split(" ");
-            String[] pt = toRaw.split(" ");
-            LocalDateTime f = LocalDate.parse(pf[0]).atTime(
-                Integer.parseInt(pf[1].substring(0, 2)), Integer.parseInt(pf[1].substring(2,4)));
-            LocalDateTime t = LocalDate.parse(pt[0]).atTime(
-                    Integer.parseInt(pt[1].substring(0,2)), Integer.parseInt(pt[1].substring(2,4)));
             return new Event(description, f, t);
+        } catch (LilBirdException e) {
+            throw e; // keep specific message
         } catch (Exception e) {
-            throw new LilBirdException("Could not parse event times. Use yyyy-MM-dd HHmm for both start and end.");
+            throw new LilBirdException(ERR_FORMAT);
         }
     }
 
-    /**
-     * Serializes this Event into a storage-friendly string.
-     *
-     * @return Serialized representation of this Event.
-     */
     @Override
     public String serialize() {
         return String.join(" | ",
@@ -76,11 +77,6 @@ public class Event extends Task {
         );
     }
 
-    /**
-     * Returns the string representation of this Event.
-     *
-     * @return String including description, start, and end times.
-     */
     @Override
     public String toString() {
         return super.toString()

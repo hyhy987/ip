@@ -13,7 +13,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
-/** A dialog bubble: image + text. */
+/**
+ * A chat dialog bubble consisting of a text label and an avatar image.
+ * <p>
+ * This class uses the {@code fx:root} pattern and is backed by
+ * {@code DialogBox.fxml}. Factory methods create user or bot variants.
+ */
 public class DialogBox extends HBox {
     @FXML private Label dialog;
     @FXML private ImageView displayPicture;
@@ -32,7 +37,10 @@ public class DialogBox extends HBox {
         displayPicture.setImage(img);
     }
 
-    /** Flips so that image is on the left, text on the right. */
+    /**
+     * Flips the dialog so that the avatar appears on the left and the text on the right.
+     * Used for LilBird (bot) messages.
+     */
     private void flip() {
         ObservableList<Node> tmp = FXCollections.observableArrayList(this.getChildren());
         Collections.reverse(tmp);
@@ -40,10 +48,25 @@ public class DialogBox extends HBox {
         setAlignment(Pos.TOP_LEFT);
     }
 
+    /**
+     * Returns a dialog bubble representing a user message.
+     *
+     * @param text message text to display
+     * @param img  avatar image to show on the right
+     * @return a new dialog bubble for the user message
+     */
     public static DialogBox getUserDialog(String text, Image img) {
         return new DialogBox(text, img);
     }
 
+    /**
+     * Returns a dialog bubble representing a LilBird (bot) message.
+     * The bubble is flipped so the avatar appears on the left.
+     *
+     * @param text message text to display
+     * @param img  avatar image to show on the left
+     * @return a new dialog bubble for the bot message
+     */
     public static DialogBox getLilBirdDialog(String text, Image img) {
         var db = new DialogBox(text, img);
         db.flip();

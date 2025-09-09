@@ -1,90 +1,91 @@
 package lilbird.task;
 
 import lilbird.exception.LilBirdException;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 /**
- * Represents a task that has a deadline.
+ * Represents a task that has a deadline (date only or date+time).
  * <p>
- * A deadline can be specified either as a date only ({@code yyyy-MM-dd}),
- * or as a date and time ({@code yyyy-MM-dd HHmm}).
+ * Exactly one of {@code date} or {@code dateTime} is set.
  */
 public class Deadline extends Task {
 
-    private final LocalDate date;         //if user gives only date
-    private final LocalDateTime dateTime; //if user gives date + time
+    private final LocalDate date;         // if user gives only date
+    private final LocalDateTime dateTime; // if user gives date + time
 
+    // Input formats (what the user types)
+    private static final DateTimeFormatter IN_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter IN_DT   = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+
+    // Output formats (what we display back)
     private static final DateTimeFormatter PRINT_DATE = DateTimeFormatter.ofPattern("MMM d yyyy");
-    private static final DateTimeFormatter PRINT_DT = DateTimeFormatter.ofPattern("MMM d yyyy, h:mm a");
+    private static final DateTimeFormatter PRINT_DT   = DateTimeFormatter.ofPattern("MMM d yyyy, h:mm a");
+
+    private static final String ERR_FORMAT =
+            "Invalid date format. Use yyyy-MM-dd or yyyy-MM-dd HHmm (e.g., 2019-10-15 or 2019-10-15 1830)";
 
     /**
-     * Creates a Deadline task with a due date.
+     * Creates a deadline with a date (no time).
      *
-     * @param description Description of the task.
-     * @param date Date by which the task is due.
+     * @param description description of the task
+     * @param date        deadline date (non-null)
      */
     public Deadline(String description, LocalDate date) {
-        super(description, TaskType.DEADLINE);
-        this.date = Objects.requireNonNull(date);
+        super(Objects.requireNonNull(description, "description"), TaskType.DEADLINE);
+        this.date = Objects.requireNonNull(date, "date");
         this.dateTime = null;
+        assert (this.date != null) ^ (this.dateTime != null)
+                : "Exactly one of date or dateTime must be set";
     }
 
     /**
-     * Creates a Deadline task with a due date and time.
+     * Creates a deadline with a specific date and time.
      *
-     * @param description Description of the task.
-     * @param dateTime Date and time by which the task is due.
+     * @param description description of the task
+     * @param dateTime    deadline date-time (non-null)
      */
     public Deadline(String description, LocalDateTime dateTime) {
-        super(description, TaskType.DEADLINE);
+        super(Objects.requireNonNull(description, "description"), TaskType.DEADLINE);
         this.date = null;
-        this.dateTime = Objects.requireNonNull(dateTime);
+        this.dateTime = Objects.requireNonNull(dateTime, "dateTime");
+        assert (this.date != null) ^ (this.dateTime != null)
+                : "Exactly one of date or dateTime must be set";
     }
 
     /**
-     * Creates a Deadline task from raw user input.
-     * <p>
-     * Accepts formats {@code yyyy-MM-dd} (date only) or {@code yyyy-MM-dd HHmm} (date and time).
+     * Parses user input and constructs a {@code Deadline}.
+     * <ul>
+     *   <li>{@code yyyy-MM-dd} → date only</li>
+     *   <li>{@code yyyy-MM-dd HHmm} → date + time</li>
+     * </ul>
      *
-     * @param description Description of the task.
-     * @param byRaw Raw input string representing the deadline.
-     * @return A new Deadline task.
-     * @throws LilBirdException If the input format is invalid or cannot be parsed.
+     * @param description task description
+     * @param byRaw       raw string after {@code /by}
+     * @return constructed deadline
+     * @throws LilBirdException if the input cannot be parsed
      */
     public static Deadline fromUserInput(String description, String byRaw) throws LilBirdException {
-        byRaw = byRaw.trim();
+        Objects.requireNonNull(description, "description");
+        Objects.requireNonNull(byRaw, "byRaw");
+        String s = byRaw.trim();
+
         try {
-            //if yyyy-MM-dd HHmm
-            if (byRaw.matches("\\d{4}-\\d{2}-\\d{2} \\d{4}")) {
-                String[] parts = byRaw.split(" ");
-                LocalDate d = LocalDate.parse(parts[0]);
-                int hh = Integer.parseInt(parts[1].substring(0, 2));
-                int mm = Integer.parseInt(parts[1].substring(2, 4));
-                return new Deadline(description, d.atTime(hh, mm));
-            } else if (byRaw.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                //yyyy-MM-dd
-                return new Deadline(description, LocalDate.parse(byRaw));
-            } else {
-                throw new LilBirdException(
-                        "Invalid date format. Use yyyy-MM-dd or yyyy-MM-dd HHmm (e.g., 2019-10-15 or 2019-10-15 1830)");
+            if (s.length() == 10) { // yyyy-MM-dd
+                return new Deadline(description, LocalDate.parse(s, IN_DATE));
             }
+            if (s.length() == 16) { // yyyy-MM-dd HHmm
+                return new Deadline(description, LocalDateTime.parse(s, IN_DT));
+            }
+            throw new LilBirdException(ERR_FORMAT);
         } catch (Exception e) {
-            if (e instanceof LilBirdException) {
-                throw (LilBirdException) e;
-            }
-            throw new LilBirdException("Could not parse date/time. " +
-                    "Use yyyy-MM-dd or yyyy-MM-dd HHmm (e.g., 2019-10-15 or 2019-10-15 1830)");
+            throw new LilBirdException(ERR_FORMAT);
         }
     }
 
-    /**
-     * Serializes this Deadline into a storage-friendly string.
-     *
-     * @return Serialized representation of this Deadline.
-     */
     @Override
     public String serialize() {
         String when = (dateTime != null) ? dateTime.toString() : date.toString();
@@ -96,14 +97,11 @@ public class Deadline extends Task {
         );
     }
 
-    /**
-     * Returns the string representation of this Deadline.
-     *
-     * @return String including description and formatted deadline.
-     */
     @Override
     public String toString() {
-        String when = (dateTime != null) ? dateTime.format(PRINT_DT) : date.format(PRINT_DATE);
+        String when = (dateTime != null)
+                ? dateTime.format(PRINT_DT)
+                : date.format(PRINT_DATE);
         return super.toString() + " (by: " + when + ")";
     }
 }

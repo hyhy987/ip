@@ -8,7 +8,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.image.Image;
 import lilbird.LilBird;
 
-/** Controller for the main GUI. */
+/**
+ * Controller for the main GUI window (defined in {@code MainWindow.fxml}).
+ * <p>
+ * Wires FXML controls, auto-scrolls the dialog container, forwards user input
+ * to {@code LilBird}, and renders user/bot dialog bubbles.
+ */
 public class MainWindow {
     @FXML private ScrollPane scrollPane;
     @FXML private VBox dialogContainer;
@@ -20,6 +25,10 @@ public class MainWindow {
     private final Image userImage = new Image(getClass().getResourceAsStream("/images/User.png"));
     private final Image lilBirdImage = new Image(getClass().getResourceAsStream("/images/LilBird.png"));
 
+    /**
+     * Initializes the controller after its FXML fields are injected.
+     * Binds the scroll pane to always show the most recent dialog.
+     */
     @FXML
     public void initialize() {
         assert scrollPane != null : "FXML: scrollPane not injected";
@@ -29,13 +38,24 @@ public class MainWindow {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
     }
 
-    /** Injects the LilBird instance. */
+    /**
+     * Injects the LilBird application logic into this controller.
+     *
+     * @param d the {@code LilBird} instance to use; must not be {@code null}
+     */
     public void setLilBird(LilBird d) {
         assert d != null : "LilBird instance must not be null";
         lilBird = d;
     }
 
-    /** Handles pressing Enter or clicking Send. */
+    /**
+     * Handles user input from the text field / Send button.
+     * <p>
+     * Creates a user dialog for the typed text, queries LilBird for a response,
+     * creates a bot dialog for the reply, appends both to the dialog container,
+     * and clears the input field.
+     */
+
     @FXML
     private void handleUserInput() {
         String input = userInput.getText();

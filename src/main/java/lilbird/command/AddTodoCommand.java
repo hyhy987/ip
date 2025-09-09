@@ -36,7 +36,9 @@ public class AddTodoCommand extends Command {
      */
     public void execute(TaskList tasks, Ui ui, Storage storage) throws LilBirdException {
         String desc = description.length() > 4 ? description.substring(5).trim() : "";
-        if (desc.isEmpty()) throw new LilBirdException("The description of a todo cannot be empty.");
+        if (desc.isEmpty()) {
+            throw new LilBirdException("The description of a todo cannot be empty.");
+        }
         Task t = new Todo(desc);
         tasks.add(t);
         storage.save(tasks.copy());

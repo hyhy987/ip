@@ -18,7 +18,8 @@ public class LilBird {
     private final TaskList tasks;
 
     /**
-     * Creates a new instance of the LilBird application.
+     * Constructs a LilBird instance and loads tasks from the default save file.
+     * If loading fails, starts with an empty task list.
      */
     public LilBird() {
         this.storage = new Storage("data/lilbird.txt");
@@ -48,6 +49,10 @@ public class LilBird {
         return ui.getLast();
     }
 
+    /**
+     * Minimal {@code Ui} that captures the last message instead of printing.
+     * Used by the GUI path to retrieve messages as strings.
+     */
     private static class BufferingUi extends Ui {
         private String last = "";
 
