@@ -27,6 +27,7 @@ public class DialogBox extends HBox {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        assert dialog != null && displayPicture != null : "FXML fields not injected";
         dialog.setText(text);
         displayPicture.setImage(img);
     }

@@ -22,6 +22,7 @@ public class TaskList {
      * @param taskList List of tasks to initialize with.
      */
     public TaskList(ArrayList<Task> taskList) {
+        assert taskList != null : "backing list must not be null";
         this.taskList = taskList;
     }
 
@@ -50,6 +51,7 @@ public class TaskList {
      * @return Task that was removed.
      */
     public Task removeAt(int idx0) {
+        assert idx0 >= 0 : "index cannot be less than 0";
         return this.taskList.remove(idx0);
     }
 
@@ -60,6 +62,7 @@ public class TaskList {
      * @return Task that was specified.
      */
     public Task get(int idx0) {
+        assert idx0 >= 0 : "index cannot be less than 0";
         return this.taskList.get(idx0);
     }
 

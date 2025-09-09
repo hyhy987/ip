@@ -22,11 +22,16 @@ public class MainWindow {
 
     @FXML
     public void initialize() {
+        assert scrollPane != null : "FXML: scrollPane not injected";
+        assert dialogContainer != null : "FXML: dialogContainer not injected";
+        assert userInput != null : "FXML: userInput not injected";
+        assert sendButton != null : "FXML: sendButton not injected";
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
     }
 
     /** Injects the LilBird instance. */
     public void setLilBird(LilBird d) {
+        assert d != null : "LilBird instance must not be null";
         lilBird = d;
     }
 
