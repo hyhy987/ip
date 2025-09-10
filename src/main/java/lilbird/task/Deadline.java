@@ -94,7 +94,7 @@ public class Deadline extends Task {
                 isDone ? "1" : "0",
                 escape(description),
                 escape(when)
-        );
+        ) + serializeTagsSuffix();
     }
 
     @Override
@@ -102,6 +102,6 @@ public class Deadline extends Task {
         String when = (dateTime != null)
                 ? dateTime.format(PRINT_DT)
                 : date.format(PRINT_DATE);
-        return super.toString() + " (by: " + when + ")";
+        return super.toString() + " (by: " + when + ")" + formatTagsSuffix();
     }
 }

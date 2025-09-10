@@ -74,13 +74,14 @@ public class Event extends Task {
                 escape(description),
                 escape(from.toString()),
                 escape(to.toString())
-        );
+        ) + serializeTagsSuffix();
     }
 
     @Override
     public String toString() {
         return super.toString()
                 + " (from: " + from.format(PRINT_DT)
-                + " to: " + to.format(PRINT_DT) + ")";
+                + " to: " + to.format(PRINT_DT) + ")"
+                + formatTagsSuffix();
     }
 }
