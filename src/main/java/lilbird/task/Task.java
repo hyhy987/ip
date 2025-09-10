@@ -4,6 +4,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import lilbird.exception.LilBirdException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Represents a generic task that can be marked as done or not done.
@@ -12,6 +16,7 @@ public class Task {
     protected String description;
     protected boolean isDone;
     protected TaskType type;
+    private final LinkedHashSet<String> tags = new LinkedHashSet<>();
 
     public Task(String description, TaskType type) {
         this.description = description;
@@ -44,18 +49,20 @@ public class Task {
             String[] raw = line.split("\\| ", -1);
             String kind = raw[0].trim();
             String done = raw[1].trim();
+            Task t;
 
             switch (kind) {
             case "T": {
                 String desc = unescape(raw[2]);
-                Task t = new Todo(desc);
-                if ("1".equals(done)) t.markAsDone();
-                return t;
+                t = new Todo(desc);
+                if ("1".equals(done)) {
+                    t.markAsDone();
+                }
+                break;
             }
             case "D": {
                 String desc = unescape(raw[2]);
                 String when = unescape(raw[3]);
-                Task t;
                 if (when.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}")) {
                     t = new Deadline(desc, LocalDateTime.parse(when));
                 } else if (when.matches("\\d{4}-\\d{2}-\\d{2}")) {
@@ -66,21 +73,34 @@ public class Task {
                 if ("1".equals(done)) {
                     t.markAsDone();
                 }
-                return t;
+                break;
             }
             case "E": {
                 String desc = unescape(raw[2]).trim();
                 LocalDateTime from = LocalDateTime.parse(unescape(raw[3]).trim());
                 LocalDateTime to = LocalDateTime.parse(unescape(raw[4]).trim());
-                Task t = new Event(desc, from, to);
+                t = new Event(desc, from, to);
                 if("1".equals(done)) {
                     t.markAsDone();
                 }
-                return t;
+                break;
             }
             default:
                 throw new LilBirdException("Unknown task type: " + kind);
             }
+            int expected = switch (kind) {
+                case "T" -> 3;
+                case "D" -> 4;
+                case "E" -> 5;
+                default -> 0;
+            };
+            if (raw.length > expected) {
+                String tagsCsv = unescape(raw[expected].trim());
+                if (!tagsCsv.isEmpty()) {
+                    t.setTagsFromCsv(tagsCsv);
+                }
+            }
+            return t;
         } catch (IndexOutOfBoundsException e) {
             throw new LilBirdException("Corrupted save line: " + line);
         }
@@ -132,6 +152,85 @@ public class Task {
      */
     protected static String unescape(String s) {
         return s.replace("\\|", "|");
+    }
+
+    public Set<String> getTags() {
+        return Collections.unmodifiableSet(this.tags);
+    }
+
+    public void addTags(Collection<String> rawTags) {
+        if (rawTags == null) {
+            return;
+        }
+        for (String s : rawTags) {
+            String t = normalizeTag(s);
+            if (!t.isEmpty()) {
+                tags.add(t);
+            }
+        }
+    }
+
+    public void removeTags(Collection<String> rawTags) {
+        if (rawTags == null) {
+            return;
+        }
+        for (String s : rawTags) {
+            String t = normalizeTag(s);
+            if (!t.isEmpty()) {
+                tags.remove(t);
+            }
+        }
+    }
+
+    public boolean hasTag(String raw) {
+        String t = normalizeTag(raw);
+        return !t.isEmpty() && tags.contains(t);
+    }
+
+    protected String formatTagsSuffix() {
+        if (tags.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder(" {");
+        boolean first = true;
+        for (String t : tags) {
+            if (!first) {
+                sb.append(' ');
+            }
+            sb.append('#').append(t);
+            first = false;
+        }
+        return sb.append('}').toString();
+    }
+
+    protected String serializeTagsSuffix() {
+        if (tags.isEmpty()) {
+            return "";
+        }
+        return " | " + escape(String.join(",", tags));
+    }
+
+    protected void setTagsFromCsv(String csv) {
+        if (csv == null || csv.isEmpty()) {
+            return;
+        }
+        for (String part : csv.split(",")) {
+            String t = normalizeTag(part);
+            if (!t.isEmpty()) {
+                tags.add(t);
+            }
+        }
+    }
+
+    private static String normalizeTag(String s) {
+        if (s == null) {
+            return "";
+        }
+        String t = s.trim();
+        if (t.startsWith("#")) {
+            t = t.substring(1). trim();
+        }
+        return t.toLowerCase();
     }
 
     /**

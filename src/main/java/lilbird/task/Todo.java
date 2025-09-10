@@ -13,4 +13,18 @@ public class Todo extends Task {
     public Todo(String description) {
         super(description, TaskType.TODO);
     }
+
+    @Override
+    public String serialize() {
+        return String.join(" | ",
+                    type.getSymbol(),
+                    isDone ? "1" : "0",
+                    escape(description)
+                ) + serializeTagsSuffix();
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + formatTagsSuffix();
+    }
 }

@@ -62,6 +62,10 @@ public class Parser {
             return new DeleteCommand(args);
         case "find":
             return new FindCommand(args);
+        case "label":
+            return new LabelCommand(args);
+        case "unlabel":
+            return new UnlabelCommand(args);
         default:
             throw new LilBirdException("*soft chirp* I don't recognise that command. Try: list, todo, " +
                     "deadline, event, mark, unmark, delete, bye.");
