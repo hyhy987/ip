@@ -33,27 +33,11 @@ public class Parser {
         case "list":
             return new ListCommand();
         case "todo":
-            return new AddTodoCommand(args);
-        case "deadline": {
-            // format: deadline <desc> /by <time>
-            int byIdx = args.indexOf("/by");
-            if (byIdx == -1) throw new LilBirdException("Missing '/by'. Usage: deadline <desc> /by <time>");
-            String desc = args.substring(0, byIdx).trim();
-            String by = args.substring(byIdx + 3).trim();
-            return new AddDeadlineCommand(desc, by);
-        }
-        case "event": {
-            // format: event <desc> /from <start> /to <end>
-            int fromIdx = args.indexOf("/from");
-            int toIdx = args.indexOf("/to");
-            if (fromIdx == -1 || toIdx == -1 || toIdx < fromIdx) {
-                throw new LilBirdException("Missing '/from' or '/to'. Usage: event <desc> /from <start> /to <end>");
-            }
-            String desc = args.substring(0, fromIdx).trim();
-            String from = args.substring(fromIdx + 5, toIdx).trim();
-            String to = args.substring(toIdx + 3).trim();
-            return new AddEventCommand(desc, from, to);
-        }
+            return AddTodoCommand.fromArgs(args);
+        case "deadline":
+            return AddDeadlineCommand.fromArgs(args);
+        case "event":
+            return AddEventCommand.fromArgs(args);
         case "mark":
             return new MarkCommand(args);
         case "unmark":
