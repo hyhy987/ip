@@ -43,7 +43,7 @@ public class Storage {
                 try {
                     tasks.add(Task.deserialize(line));
                 } catch (LilBirdException corrupt) {
-                    // Stretch goal behavior: skip corrupted lines quietly;
+                    // Skip corrupted lines quietly;
                 }
             }
             return tasks;

@@ -75,10 +75,6 @@ public class TaskList {
         return this.taskList.isEmpty();
     }
 
-    public ArrayList<Task> raw() {
-        return taskList;
-    }
-
     /**
      * Returns a copy of the taskList stored.
      *
